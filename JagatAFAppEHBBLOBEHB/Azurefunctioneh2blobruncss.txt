@@ -1,0 +1,338 @@
+
+#r "Microsoft.WindowsAzure.Storage"
+#r "System.Web"
+
+using System;
+using System.Text;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Host.Bindings.Runtime;
+using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.Auth;
+using Microsoft.WindowsAzure.Storage;
+using Newtonsoft.Json;
+using Microsoft.Azure.WebJobs.Description;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Web;
+using StackExchange.Redis;
+
+public static void appendTextToMavensIBlob(string myEventHubMessage,  string ColdStorePath, TraceWriter log)
+{
+    //Prod Blob details
+    string blobName = "xfactordatastore";
+    string accKey = "7/+JSJ11i1aL0X/Cg0/nBXQLPkMjynsRooKluc9YgERemvQ7Cr8EXsNQqU9/MvDZ92JinseC+0Os/7rIf5J4Aw==";
+    string ContainerName = "prodocmdata";
+
+    //Configuring blob
+    StorageCredentials creds = new StorageCredentials(blobName, accKey);
+    CloudStorageAccount strAcc = new CloudStorageAccount(creds, true);
+    CloudBlobClient blobClient = strAcc.CreateCloudBlobClient();
+    //Setup our container we are going to use and create it.
+    CloudBlobContainer container = blobClient.GetContainerReference(ContainerName);
+    container.CreateIfNotExists();
+
+    // This creates a reference to the append blob we are going to use.
+    CloudAppendBlob appBlob = container.GetAppendBlobReference(ColdStorePath);
+
+    // Now we are going to check if file exists and if it doesn't we create it.
+    if (!appBlob.Exists())
+    {
+        //Create file
+        try {
+            appBlob.CreateOrReplace();
+            } catch (Exception e) {
+                log.Info($"\nWabtecONE Log :--> Exception while creating container in side blob --> {e}.\n ");
+            }
+            log.Info($"\nWabtecONE Log :-> Creating folder structure in blob.\n");
+    }
+
+    // Add the entry to our log.
+    //appBlob.AppendTextAsync(myEventHubMessage);
+    //appBlob.AppendText(myEventHubMessage);
+           StringBuilder builder = new StringBuilder();
+            builder.Append(myEventHubMessage);
+            builder.AppendLine();
+
+    using (MemoryStream msgToAppend = new MemoryStream(Encoding.UTF8.GetBytes(builder.ToString())))
+    {
+        try {
+            appBlob.AppendBlock(msgToAppend);
+            log.Info($"\nWabtecONE Log :-> File exist, Appending to blob.\n");
+        } catch (Exception e) {
+            log.Info($"\nWabtecONE Log :--> Exception while appending to file in blob --> {e}.\n ");
+        }
+    }
+}
+
+public static void appendTextToMRSBlob(string myEventHubMessage,  string ColdStorePath, TraceWriter log)
+{
+    string blobName = "mrsprodstorageaccount";
+    string accKey = "7B1NJck52qQtQMets0leIammxfq6NG1jyyEBI2Mlxg7iRsV+FGCa9V/ALMBE83yaQEMSYoOjM8rnD2QmboWLYQ==";
+    string ContainerName = "mrsprodocmdata";
+
+    //Configuring blob
+    StorageCredentials creds = new StorageCredentials(blobName, accKey);
+    CloudStorageAccount strAcc = new CloudStorageAccount(creds, true);
+    CloudBlobClient blobClient = strAcc.CreateCloudBlobClient();
+    //Setup our container we are going to use and create it.
+    CloudBlobContainer container = blobClient.GetContainerReference(ContainerName);
+    container.CreateIfNotExists();
+
+    // This creates a reference to the append blob we are going to use.
+    CloudAppendBlob appBlob = container.GetAppendBlobReference(ColdStorePath);
+
+    // Now we are going to check if file exists and if it doesn't we create it.
+    if (!appBlob.Exists())
+    {
+        //Create file
+        try {
+            appBlob.CreateOrReplace();
+            } catch (Exception e) {
+                log.Info($"\nWabtecONE Log :--> Exception while creating container in side blob --> {e}.\n ");
+            }
+            log.Info($"\nWabtecONE Log :-> Creating folder structure in blob.\n");
+    }
+
+    // Add the entry to our log.
+    //appBlob.AppendTextAsync(myEventHubMessage);
+    //appBlob.AppendText(myEventHubMessage);
+    using (MemoryStream msgToAppend = new MemoryStream(Encoding.UTF8.GetBytes(myEventHubMessage)))
+    {
+        try {
+            appBlob.AppendBlock(msgToAppend);
+            log.Info($"\nWabtecONE Log :-> File exist, Appending to blob.\n");
+        } catch (Exception e) {
+            log.Info($"\nWabtecONE Log :--> Exception while appending to file in blob --> {e}.\n ");
+        }
+    }
+}
+
+public static string createFolderStructureForBlob(string myEventHubMessage,TraceWriter log)
+{
+    string typeOfLog = "OCM";
+    string FileName = "";
+    string strUTCYear = "";
+    string strUTCMonth = "";
+    string strUTCDay = "";
+    string strUTCHour = "";
+    string covertToUTC = "";
+    string ColdStorePath = "";
+    string strUTCMinute = "";
+    string receivedMsg = "";   
+
+    dynamic receivedJson = JsonConvert.DeserializeObject(myEventHubMessage);
+    receivedMsg = receivedJson.message;
+
+    //Check for Date and Time field in Message
+    if((receivedMsg.Split(' ')[0]) != "")
+    {
+        //Comes here if Date and Time fild exists.
+        log.Info($"\nWabtecONE Log :-> Date and Time exist in log\n");
+
+        //Extract Date and time
+        int space1 = receivedMsg.IndexOf(' ');
+        int space2 = receivedMsg.IndexOf(' ', space1 + 1);
+        covertToUTC = receivedMsg.Substring(0, space2);
+
+        log.Info($"\nWabtecONE Log :-> covertToUTC: {covertToUTC}\n");
+        DateTime dt= DateTimeOffset.Parse(covertToUTC).UtcDateTime;
+        log.Info($"\nWabtecONE Log :-> Msg dt : {dt}\n");
+
+      //  var utcDt = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.SpecifyKind(dt, DateTimeKind.Unspecified), "Argentina Standard Time", "UTC");
+        var utcDt = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.SpecifyKind(dt, DateTimeKind.Unspecified), "E. South America Standard Time", "UTC");
+
+        log.Info($"\nWabtecONE Log :-> utcDt : {utcDt}\n");
+ 
+        strUTCYear = utcDt.Year.ToString();
+        strUTCMonth = utcDt.Month.ToString();
+        strUTCDay = utcDt.Day.ToString();
+        strUTCHour = utcDt.Hour.ToString();
+        strUTCMinute = utcDt.Minute.ToString();
+      
+        int int_strUTCHour = Convert.ToInt32(strUTCHour); 
+        
+        //Append Zero for single digit value Ex: 1 -> 01 -- 9 ->09
+        if(Convert.ToInt32(strUTCMonth) <= 9) strUTCMonth='0'+ strUTCMonth;
+        if(Convert.ToInt32(strUTCDay) <= 9) strUTCDay = '0' + strUTCDay;
+        if(Convert.ToInt32(strUTCHour) <= 9) strUTCHour = '0' + strUTCHour;
+
+        //Split file per 15 Min
+        if((Convert.ToInt32(strUTCMinute) >= 0) && (Convert.ToInt32(strUTCMinute) <= 14))
+            FileName = strUTCHour + "_00-14" + ".json";
+        else if((Convert.ToInt32(strUTCMinute) > 14) && (Convert.ToInt32(strUTCMinute) <= 29))
+            FileName = strUTCHour + "_15-29" + ".json";
+        else if((Convert.ToInt32(strUTCMinute) > 29) && (Convert.ToInt32(strUTCMinute) <= 44))
+            FileName = strUTCHour + "_30-44" + ".json";
+        else if((Convert.ToInt32(strUTCMinute) > 44) && (Convert.ToInt32(strUTCMinute) <= 59))
+            FileName = strUTCHour + "_45-59" + ".json";
+
+        //log.Info($"\nWabtecONE Log :-> Convert.ToInt32(strUTCMinute) : {Convert.ToInt32(strUTCMinute)}\n");
+        //Configuring File name and path
+        ColdStorePath = $"{typeOfLog}/{strUTCYear}/{strUTCMonth}/{strUTCDay}/{strUTCHour}/{FileName}";
+        
+    } else if(receivedMsg != null) {
+    
+        //Comes here if Date and Time fild not exist.
+        log.Info($"\nWabtecONE Log : Date and Time doesn't exist in log\n");
+        strUTCYear = DateTime.UtcNow.ToString("yyyy");
+        strUTCMonth = DateTime.UtcNow.ToString("MM");
+        strUTCDay = DateTime.UtcNow.ToString("dd");
+        strUTCHour = DateTime.UtcNow.ToString("HH");
+        FileName = strUTCHour+ ".json";
+        ColdStorePath = $"{typeOfLog}/{strUTCYear}/{strUTCMonth}/{strUTCDay}/{strUTCHour}/{FileName}";            
+    }
+    
+    log.Info($"\nWabtecONE Log :-> ColdStorePath: {ColdStorePath}\n");
+    return ColdStorePath;
+}
+
+public static void sendToBlob(string myEventHubMessage, TraceWriter log)
+{
+    string srtuctureInBlob = "";
+    //string receivedMsg = "";
+
+    //Check for valid message
+    if (myEventHubMessage != null)
+    {
+        dynamic receivedJson = JsonConvert.DeserializeObject(myEventHubMessage);
+        //Check for Empty line
+        if((receivedJson.message) != "\r") 
+        {
+            try {
+            //Create Folder structure for blob
+            srtuctureInBlob = createFolderStructureForBlob(myEventHubMessage, log);
+            //Append text to blob
+            appendTextToMRSBlob(myEventHubMessage, srtuctureInBlob, log);
+          //  appendTextToMavensIBlob(myEventHubMessage, srtuctureInBlob, log);
+            } catch (Exception e) {
+                log.Info($"\nWabtecONE Log : Exception : --> {e}.\n");
+            }
+        }
+    }
+}
+
+public static string msgDecode(string myEventHubMessage, TraceWriter log)
+{
+    dynamic receivedJson = JsonConvert.DeserializeObject(myEventHubMessage);
+    string message = receivedJson.message;
+    string messageArray = message.Split(',')[8];
+    string messagePassed = messageArray.Trim();
+
+    //-------------------POST----
+    string resturl = "http://emp-message-decoder.azurewebsites.net/api/decodeEMPMsg";          
+    HttpWebRequest webrequesta = (HttpWebRequest)WebRequest.Create(resturl);
+    webrequesta.Method = "POST";      
+    StringBuilder parameters = new StringBuilder();
+
+        parameters.AppendFormat("{0}={1}&",
+            HttpUtility.UrlEncode("msg"),
+            HttpUtility.UrlEncode(messagePassed));
+
+    parameters.Length -= 1;
+    webrequesta.ContentType = "application/x-www-form-urlencoded";
+
+    using (var writer = new StreamWriter(webrequesta.GetRequestStream()))
+    {
+        writer.Write(parameters.ToString());
+    }
+    string message_final = "";
+    try
+    {
+    var response = webrequesta.GetResponse();
+    var reader = new StreamReader(response.GetResponseStream());
+    var result = reader.ReadToEnd();
+    string s = Convert.ToString(result);
+    
+    var json = JObject.Parse(s);
+    dynamic decoded_message1 = JsonConvert.SerializeObject(json,Newtonsoft.Json.Formatting.None);
+    dynamic json1 = JsonConvert.DeserializeObject(decoded_message1);
+    var decoded_message = json1.decodedMsg;
+    
+    string message_final1 = JsonConvert.SerializeObject(decoded_message);
+
+    message_final = message_final1;
+    
+    }
+    catch (WebException e)
+    {
+        string message_final2 = "{\"protocolVersion\":-1,\"messageType\":-1000,\"messageVersion\":-1,\"flags\":0,\"dataLength\":0,\"messageNumber\":0,\"messageTime\":\"1901-01-01T00:00:00Z\",\"variableHeaderSize\":0,\"timeToLive\":0,\"routingQos\":40,\"source\":\"invalid\",\"destination\":\"invalid\",\"messageBody\":{\"messageString\":\""+messageArray+"\"}}";
+        
+    }
+
+    string updated_message;
+    string new_message;
+
+    if(message_final != "")
+    {
+        updated_message = message_final.Substring(1,message_final.Length-2);
+        new_message = updated_message.Replace("\\",String.Empty);
+    }
+    else
+    {
+        updated_message = "";
+            new_message = "{\"protocolVersion\":-1,\"messageType\":-1000,\"messageVersion\":-1,\"flags\":0,\"dataLength\":0,\"messageNumber\":0,\"messageTime\":\"1901-01-01T00:00:00Z\",\"variableHeaderSize\":0,\"timeToLive\":0,\"routingQos\":40,\"source\":\"invalid\",\"destination\":\"invalid\",\"messageBody\":{\"messageString\":\""+messageArray+"\"}}";
+    }
+    return new_message;
+}
+//Redis DB conection related code
+private static Lazy<ConnectionMultiplexer> lazyConnection = new Lazy<ConnectionMultiplexer>(() =>
+{
+return ConnectionMultiplexer.Connect("MrsProdFingerprintRedisDB.redis.cache.windows.net:6380,password=v7TI0QvIyCXQ/KUPVxKeQTKpPCVrEfLS26P12M8mdWU=,ssl=True,abortConnect=False");
+});
+
+public static ConnectionMultiplexer Connection
+{
+get
+{
+return lazyConnection.Value;
+}
+}
+
+//Prog starts  from here
+public static void Run(string myEventHubMessage, out string outputEventHubMessageTSI,out string outputEventHubMessageADL, TraceWriter log)
+{
+    
+    log.Info($"\nWabtecONE Log :->  [fun : Run] : Raw Msg Received: {myEventHubMessage}\n");
+
+    //Get Decode Message
+   // string decodedMsg = msgDecode(myEventHubMessage, log);
+
+ //Get Decode Message
+    string decodedMsg="";
+    dynamic receivedJson = JsonConvert.DeserializeObject(myEventHubMessage);
+    string fingerprintkey = receivedJson.fingerprint;
+    
+    IDatabase cache = Connection.GetDatabase();
+    string strfingerprint =cache.StringGet(fingerprintkey);
+     log.Info($"\nWabtecONE Log :->  [fun : Run] : Redis strfingerprint cache message : {strfingerprint}\n");
+    if(string.IsNullOrEmpty(strfingerprint))
+    {
+        cache.StringSet(fingerprintkey, fingerprintkey);
+        log.Info($"\nWabtecONE Log :->  [fun : Run] : Redis strfingerprint message111 : {cache.StringGet(fingerprintkey)}\n");
+
+        string message = receivedJson.message;
+        string messageArray = message.Split(',')[6];
+        log.Info($"Message Id: {messageArray}");
+        string[] arr={"2083","2087","2080","1051","2052","2003","2005","1022", "2022","1303", "2301"};
+        if(arr.Contains(messageArray) )
+        {
+            log.Info($"Message Id exist");
+            decodedMsg = msgDecode(myEventHubMessage, log);
+
+        } 
+    //Send to blob
+        sendToBlob(myEventHubMessage,log); 
+    }else{
+       log.Info($"\nWabtecONE Log :-> [fun : Run] : Duplicate message : {myEventHubMessage}\n"); 
+    }
+    //Send to event hubs
+    outputEventHubMessageTSI = decodedMsg;
+    log.Info($"\nWabtecONE Log :-> [fun : Run] : Going To EH-ADL");
+    outputEventHubMessageADL = decodedMsg; 
+    log.Info($"\nWabtecONE Log :-> [fun : Run] : Going To EH-TIS");
+   
+}

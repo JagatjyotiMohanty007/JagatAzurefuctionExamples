@@ -1,0 +1,26 @@
+{
+  "bindings": [
+    {
+      "type": "eventHubTrigger",
+      "name": "myEventHubMessage",
+      "direction": "in",
+      "path": "mrsprodocmeventhub",
+      "connection": "MrsProdEventHub_MrsProdOCMEHPolicy_EVENTHUB"
+    },
+    {
+      "type": "eventHub",
+      "name": "outputEventHubMessageADL",
+      "path": "mrsprodocmadlehb",
+      "connection": "MrsProdSrvBusAdl_RootManageSharedAccessKey_EVENTHUB",
+      "direction": "out"
+    },
+    {
+      "type": "eventHub",
+      "name": "outputEventHubMessageTSI",
+      "path": "mrsprodocmtsiehb",
+      "connection": "MrsProdSrvBusTsi_RootManageSharedAccessKey_EVENTHUB",
+      "direction": "out"
+    }
+  ],
+  "disabled": false
+}

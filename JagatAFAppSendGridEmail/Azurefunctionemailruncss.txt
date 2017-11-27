@@ -1,0 +1,126 @@
+#r "System.Configuration"
+#r "Microsoft.WindowsAzure.Storage"
+#r "System.Web"
+#r "SendGrid"
+#r "Microsoft.Azure.Documents.Client"
+//#r "System.Web.Http.Cors"
+using System;
+//using System.Threading.Tasks;
+using Newtonsoft.Json;
+using SendGrid;
+using SendGrid.Helpers.Mail;
+//using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Host.Bindings.Runtime;
+using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.Auth;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.Azure.WebJobs.Description;
+using Newtonsoft.Json.Linq;
+//using System.Web.Http.HttpConfiguration
+using System.Collections.Generic;
+using System.Net;
+using System.Web;
+using StackExchange.Redis;
+using System.Linq;
+using System.Net.Http;
+using System.Web.Http;
+using System.Configuration;
+using Microsoft.Azure.Documents.Client;
+//using System.Web.Http.Cors;
+using System.Net.Mail;
+//using System.Web.Http.Cors;
+//send email
+public static void sendEmail(string myEventHubMessage,TraceWriter log)
+{
+    log.Info($"\n inside send email");
+   
+      string sendgridkey = ConfigurationManager.AppSettings["SendGridApiKey"];
+        
+            try
+            {
+ 
+                var client = new SendGridClient(sendgridkey);
+                var msg1 = new SendGridMessage()
+                {
+                    From = new EmailAddress("mohanty.jagatjyoti@gmail.com", " Jagatjyoti Mohanty"),
+                    Subject = "Alerts!!",
+                    PlainTextContent = myEventHubMessage,//"Test messgae",
+                    HtmlContent =myEventHubMessage// "Test Messgae"
+                };
+                msg1.AddTo(new EmailAddress("mohanty.jagatjyoti@gmail.com", "SendGrid Test"));
+ 
+                var response= client.SendEmailAsync(msg1).Result;
+                log.Info($"\n inside send email executed");
+ 
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+}
+//Redis DB conection related code
+private static Lazy<ConnectionMultiplexer> lazyConnection = new Lazy<ConnectionMultiplexer>(() =>
+{
+return ConnectionMultiplexer.Connect("MrsProdFingerprintRedisDB.redis.cache.windows.net:6380,password=v7TI0QvIyCXQ/KUPVxKeQTKpPCVrEfLS26P12M8mdWU=,ssl=True,abortConnect=False");
+});
+
+public static ConnectionMultiplexer Connection
+{
+get
+{
+return lazyConnection.Value;
+}
+}
+
+//Prog starts  from here
+public static void Run(string myEventHubMessage, out string outputEventHubMessageAlertout,  out string outputSendGridAlertMsg,TraceWriter log)
+{
+     
+    log.Info($"\nWabtecONE Log :->  [fun : Run] : Raw Msg Received: {myEventHubMessage}\n");
+     sendEmail(myEventHubMessage,log);
+
+    //Get Decode Message
+    //string decodedMsg = msgDecode(myEventHubMessage, log);
+
+ //Get Decode Message
+    string decodedMsg="";
+   dynamic receivedJson = JsonConvert.DeserializeObject(myEventHubMessage);
+   string fingerprintkey = receivedJson.fingerprint;
+    
+   IDatabase cache = Connection.GetDatabase();
+   string strfingerprint =cache.StringGet(fingerprintkey);
+    log.Info($"\nWabtecONE Log :->  [fun : Run] : Redis strfingerprint cache message : {strfingerprint}\n");
+   if(string.IsNullOrEmpty(strfingerprint))
+    {
+       cache.StringSet(fingerprintkey, fingerprintkey);
+       log.Info($"\nWabtecONE Log :->  [fun : Run] : Redis strfingerprint message111 : {cache.StringGet(fingerprintkey)}\n");
+
+       string message = receivedJson.message;
+        string messageArray = message.Split(',')[6];
+        log.Info($"Message Id: {messageArray}");
+        string[] arr={"2083","2083","2087","2080","1051","2052","2003","2005","1022"};
+        if(arr.Contains(messageArray) )
+        {
+           log.Info($"Message Id exist");
+          // decodedMsg = msgDecode(myEventHubMessage, log);
+          decodedMsg =myEventHubMessage;
+
+         
+   // Send mail
+      // sendEmail(decodedMsg,log); 
+       }
+    }else{
+      log.Info($"\nWabtecONE Log :-> [fun : Run] : Duplicate message : {myEventHubMessage}\n"); 
+   }
+    outputSendGridAlertMsg = myEventHubMessage;
+    outputEventHubMessageAlertout = decodedMsg;
+    log.Info($"\nWabtecONE Log.");
+    
+   
+}
+

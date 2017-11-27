@@ -1,0 +1,201 @@
+{
+  "version": 2,
+  "targets": {
+    ".NETFramework,Version=v4.6": {
+      "Microsoft.Azure.Management.DataLake.Store/2.3.0-preview": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Rest.ClientRuntime": "[2.3.9, 3.0.0)",
+          "Microsoft.Rest.ClientRuntime.Azure": "[3.3.9, 4.0.0)",
+          "Newtonsoft.Json": "6.0.8"
+        },
+        "compile": {
+          "lib/net452/Microsoft.Azure.Management.DataLake.Store.dll": {}
+        },
+        "runtime": {
+          "lib/net452/Microsoft.Azure.Management.DataLake.Store.dll": {}
+        }
+      },
+      "Microsoft.IdentityModel.Clients.ActiveDirectory/2.28.3": {
+        "type": "package",
+        "compile": {
+          "lib/net45/Microsoft.IdentityModel.Clients.ActiveDirectory.WindowsForms.dll": {},
+          "lib/net45/Microsoft.IdentityModel.Clients.ActiveDirectory.dll": {}
+        },
+        "runtime": {
+          "lib/net45/Microsoft.IdentityModel.Clients.ActiveDirectory.WindowsForms.dll": {},
+          "lib/net45/Microsoft.IdentityModel.Clients.ActiveDirectory.dll": {}
+        }
+      },
+      "Microsoft.Rest.ClientRuntime/2.3.9": {
+        "type": "package",
+        "dependencies": {
+          "Newtonsoft.Json": "6.0.8"
+        },
+        "compile": {
+          "lib/net452/Microsoft.Rest.ClientRuntime.dll": {}
+        },
+        "runtime": {
+          "lib/net452/Microsoft.Rest.ClientRuntime.dll": {}
+        }
+      },
+      "Microsoft.Rest.ClientRuntime.Azure/3.3.9": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Rest.ClientRuntime": "[2.3.9, 3.0.0)",
+          "Newtonsoft.Json": "6.0.8"
+        },
+        "compile": {
+          "lib/net452/Microsoft.Rest.ClientRuntime.Azure.dll": {}
+        },
+        "runtime": {
+          "lib/net452/Microsoft.Rest.ClientRuntime.Azure.dll": {}
+        }
+      },
+      "Microsoft.Rest.ClientRuntime.Azure.Authentication/2.3.1": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.IdentityModel.Clients.ActiveDirectory": "[2.28.3]",
+          "Microsoft.Rest.ClientRuntime": "[2.3.8, 3.0.0)",
+          "Newtonsoft.Json": "6.0.8"
+        },
+        "compile": {
+          "lib/net452/Microsoft.Rest.ClientRuntime.Azure.Authentication.dll": {}
+        },
+        "runtime": {
+          "lib/net452/Microsoft.Rest.ClientRuntime.Azure.Authentication.dll": {}
+        }
+      },
+      "Newtonsoft.Json/6.0.8": {
+        "type": "package",
+        "compile": {
+          "lib/net45/Newtonsoft.Json.dll": {}
+        },
+        "runtime": {
+          "lib/net45/Newtonsoft.Json.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Microsoft.Azure.Management.DataLake.Store/2.3.0-preview": {
+      "sha512": "gsWftuyaO/6Bnen4kjfUnD12EvRUHCgCJqioWg0NTTuWE+ag36vqjFDrCNZYZ9ru6JeOmK0bGhOfmXQfiqMDrA==",
+      "type": "package",
+      "path": "microsoft.azure.management.datalake.store/2.3.0-preview",
+      "files": [
+        "lib/net452/Microsoft.Azure.Management.DataLake.Store.dll",
+        "lib/net452/Microsoft.Azure.Management.DataLake.Store.runtimeconfig.json",
+        "lib/net452/Microsoft.Azure.Management.DataLake.Store.xml",
+        "lib/netstandard1.4/Microsoft.Azure.Management.DataLake.Store.dll",
+        "lib/netstandard1.4/Microsoft.Azure.Management.DataLake.Store.runtimeconfig.json",
+        "lib/netstandard1.4/Microsoft.Azure.Management.DataLake.Store.xml",
+        "microsoft.azure.management.datalake.store.2.3.0-preview.nupkg.sha512",
+        "microsoft.azure.management.datalake.store.nuspec"
+      ]
+    },
+    "Microsoft.IdentityModel.Clients.ActiveDirectory/2.28.3": {
+      "sha512": "8cbI3bn4wO1OdzKfRhCTr9RdaBK9W0bcQ5qNZ9EDYuMpzUDHJZuFbDDonE8W+xqWO+m/wGr63yKZLNWHve7yQg==",
+      "type": "package",
+      "path": "microsoft.identitymodel.clients.activedirectory/2.28.3",
+      "files": [
+        "lib/net45/Microsoft.IdentityModel.Clients.ActiveDirectory.WindowsForms.dll",
+        "lib/net45/Microsoft.IdentityModel.Clients.ActiveDirectory.XML",
+        "lib/net45/Microsoft.IdentityModel.Clients.ActiveDirectory.dll",
+        "lib/netcore45/Microsoft.IdentityModel.Clients.ActiveDirectory.XML",
+        "lib/netcore45/Microsoft.IdentityModel.Clients.ActiveDirectory.winmd",
+        "lib/wp/Microsoft.IdentityModel.Clients.ActiveDirectory.XML",
+        "lib/wp/Microsoft.IdentityModel.Clients.ActiveDirectory.dll",
+        "lib/wpa/Microsoft.IdentityModel.Clients.ActiveDirectory.XML",
+        "lib/wpa/Microsoft.IdentityModel.Clients.ActiveDirectory.winmd",
+        "microsoft.identitymodel.clients.activedirectory.2.28.3.nupkg.sha512",
+        "microsoft.identitymodel.clients.activedirectory.nuspec"
+      ]
+    },
+    "Microsoft.Rest.ClientRuntime/2.3.9": {
+      "sha512": "rCg0mP8F+18/feONzMCVFOioH3lTVL3xmcznVW7yYNP79BCoqmNuM4UheovlTbXQbiMSQRYT0T8GO44YJzyvJg==",
+      "type": "package",
+      "path": "microsoft.rest.clientruntime/2.3.9",
+      "files": [
+        "lib/net452/Microsoft.Rest.ClientRuntime.dll",
+        "lib/net452/Microsoft.Rest.ClientRuntime.runtimeconfig.json",
+        "lib/net452/Microsoft.Rest.ClientRuntime.xml",
+        "lib/netstandard1.4/Microsoft.Rest.ClientRuntime.dll",
+        "lib/netstandard1.4/Microsoft.Rest.ClientRuntime.runtimeconfig.json",
+        "lib/netstandard1.4/Microsoft.Rest.ClientRuntime.xml",
+        "microsoft.rest.clientruntime.2.3.9.nupkg.sha512",
+        "microsoft.rest.clientruntime.nuspec"
+      ]
+    },
+    "Microsoft.Rest.ClientRuntime.Azure/3.3.9": {
+      "sha512": "e+XzlbWGHIfaCUAWyO2cLFkIy+XyL0MB6p2THp38E1qqAyXiuFAbirH5TyN756QzULThFEyygwmoKYhg1GLpPQ==",
+      "type": "package",
+      "path": "microsoft.rest.clientruntime.azure/3.3.9",
+      "files": [
+        "lib/net452/Microsoft.Rest.ClientRuntime.Azure.dll",
+        "lib/net452/Microsoft.Rest.ClientRuntime.Azure.runtimeconfig.json",
+        "lib/net452/Microsoft.Rest.ClientRuntime.Azure.xml",
+        "lib/netstandard1.4/Microsoft.Rest.ClientRuntime.Azure.dll",
+        "lib/netstandard1.4/Microsoft.Rest.ClientRuntime.Azure.runtimeconfig.json",
+        "lib/netstandard1.4/Microsoft.Rest.ClientRuntime.Azure.xml",
+        "microsoft.rest.clientruntime.azure.3.3.9.nupkg.sha512",
+        "microsoft.rest.clientruntime.azure.nuspec"
+      ]
+    },
+    "Microsoft.Rest.ClientRuntime.Azure.Authentication/2.3.1": {
+      "sha512": "b6Aqd1WbtAk3NL+eACYOcRpduyHHEAJJ2OLWga7VyXq/zDlm5o7K4cWz/Zc46bdEdsotb0gBHYkTD6P82x72wQ==",
+      "type": "package",
+      "path": "microsoft.rest.clientruntime.azure.authentication/2.3.1",
+      "files": [
+        "lib/net452/Microsoft.Rest.ClientRuntime.Azure.Authentication.dll",
+        "lib/net452/Microsoft.Rest.ClientRuntime.Azure.Authentication.runtimeconfig.json",
+        "lib/net452/Microsoft.Rest.ClientRuntime.Azure.Authentication.xml",
+        "lib/netstandard1.4/Microsoft.Rest.ClientRuntime.Azure.Authentication.dll",
+        "lib/netstandard1.4/Microsoft.Rest.ClientRuntime.Azure.Authentication.runtimeconfig.json",
+        "lib/netstandard1.4/Microsoft.Rest.ClientRuntime.Azure.Authentication.xml",
+        "microsoft.rest.clientruntime.azure.authentication.2.3.1.nupkg.sha512",
+        "microsoft.rest.clientruntime.azure.authentication.nuspec"
+      ]
+    },
+    "Newtonsoft.Json/6.0.8": {
+      "sha512": "7ut47NDedTW19EbL0JpFDYUP62fcuz27hJrehCDNajdCS5NtqL+E39+7Um3OkNc2wl2ym7K8Ln5eNuLus6mVGQ==",
+      "type": "package",
+      "path": "newtonsoft.json/6.0.8",
+      "files": [
+        "lib/net20/Newtonsoft.Json.dll",
+        "lib/net20/Newtonsoft.Json.xml",
+        "lib/net35/Newtonsoft.Json.dll",
+        "lib/net35/Newtonsoft.Json.xml",
+        "lib/net40/Newtonsoft.Json.dll",
+        "lib/net40/Newtonsoft.Json.xml",
+        "lib/net45/Newtonsoft.Json.dll",
+        "lib/net45/Newtonsoft.Json.xml",
+        "lib/netcore45/Newtonsoft.Json.dll",
+        "lib/netcore45/Newtonsoft.Json.xml",
+        "lib/portable-net40+sl5+wp80+win8+wpa81/Newtonsoft.Json.dll",
+        "lib/portable-net40+sl5+wp80+win8+wpa81/Newtonsoft.Json.xml",
+        "lib/portable-net45+wp80+win8+wpa81+aspnetcore50/Newtonsoft.Json.dll",
+        "lib/portable-net45+wp80+win8+wpa81+aspnetcore50/Newtonsoft.Json.xml",
+        "newtonsoft.json.6.0.8.nupkg.sha512",
+        "newtonsoft.json.nuspec",
+        "tools/install.ps1"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    "": [],
+    ".NETFramework,Version=v4.6": [
+      "Microsoft.Azure.Management.DataLake.Store >= 2.3.0-preview",
+      "Microsoft.IdentityModel.Clients.ActiveDirectory >= 2.28.3",
+      "Microsoft.Rest.ClientRuntime >= 2.3.9",
+      "Microsoft.Rest.ClientRuntime.Azure >= 3.3.9",
+      "Microsoft.Rest.ClientRuntime.Azure.Authentication >= 2.3.1",
+      "Microsoft.Rest.ClientRuntime.Azure.Authentication.resources >= 2.0.0",
+      "Newtonsoft.Json >= 6.0.8"
+    ]
+  },
+  "tools": {},
+  "projectFileToolGroups": {},
+  "packageFolders": {
+    "D:\\home\\data\\Functions\\packages\\nuget": {}
+  }
+}

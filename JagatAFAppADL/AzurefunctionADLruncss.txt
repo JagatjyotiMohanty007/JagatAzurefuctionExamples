@@ -1,0 +1,69 @@
+
+using System;
+using System.IO;
+using System.Security.Cryptography.X509Certificates; // Required only if you are using an Azure AD application created with certificates
+using System.Threading;
+
+using Microsoft.Azure.Management.DataLake.Store;
+using Microsoft.Azure.Management.DataLake.Store.Models;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Rest.ClientRuntime.Azure.Authentication;
+using Microsoft.Rest.Azure.Authentication;
+using System.Threading.Tasks;
+using System.Text;
+
+private static  DataLakeStoreAccountManagementClient _adlsClient;
+private static DataLakeStoreFileSystemManagementClient _adlsFileSystemClient;
+
+private static string _adlsAccountName;
+private static string _resourceGroupName;
+private static string _location;
+private static string _subId;
+        
+public static void Run(string input, TraceWriter log)
+{
+    try
+    {
+        _adlsAccountName = "girishtestadl"; // TODO: Replace this value with the name of your existing Data Lake Store account.
+        _resourceGroupName = "WabtecONEDevelopment"; // TODO: Replace this value with the name of the resource group containing your Data Lake Store account.
+        _location = "East US 2";
+        _subId = "e2186114-ebc1-4579-87b0-d455b33cd6cf";
+
+
+        string createremoteFolderPath = "/girishlc/";
+
+        Task.Run(async () => await CreateDirectory(createremoteFolderPath)).Wait();
+        //Task.Run(CreateDirectory(createremoteFolderPath));
+        //CreateDirectory(createremoteFolderPath);
+
+    }
+    catch (Exception ex)
+    {
+        throw ex;
+    }
+    log.Info($"C# manually triggered function called with input:");
+}
+
+public static async Task CreateDirectory(string path)
+{
+    try
+    {
+        // User login via interactive popup
+        // Use the client ID of an existing AAD Web application.
+        SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
+        var tenant_id = "90f1aac4-c661-46a9-83fd-e021705adcc9"; // Replace this string with the user's Azure Active Directory tenant ID
+        var nativeClientApp_clientId = "1950a258-227b-4e31-a9cf-717495945fc2";
+        var activeDirectoryClientSettings = ActiveDirectoryClientSettings.UsePromptOnly(nativeClientApp_clientId, new Uri("urn:ietf:wg:oauth:2.0:oob"));
+        //var creds = UserTokenProvider.LoginWithPromptAsync(tenant_id, activeDirectoryClientSettings).Result;
+        var creds = UserTokenProvider.LoginSilentAsync(activeDirectoryClientSettings.ClientId, tenant_id, "gchandrashekar@wabtec.com", "#Welcome456").Result;
+        _adlsClient = new DataLakeStoreAccountManagementClient(creds) { SubscriptionId = _subId };
+        _adlsFileSystemClient = new DataLakeStoreFileSystemManagementClient(creds);
+        await _adlsFileSystemClient.FileSystem.MkdirsAsync(_adlsAccountName, path);
+        _adlsFileSystemClient.FileSystem.CreateAsync(_adlsAccountName, "newFile.txt");
+    }
+    catch (Exception dir)
+    {
+
+        throw dir;
+    }
+}
